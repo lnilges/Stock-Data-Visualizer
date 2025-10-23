@@ -16,44 +16,39 @@ import requests
 #import pygal 
 #import lxml
 
-#Use base link and use inputs below to fill in function, symbol, and interval values
+#Used to test to make sure API key worked
 #url = 'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=9XOMX3XJU9HQH6LD'
 #r = requests.get(url)
 #data = r.json()
-
 #print(data)
 
 #put everything in a while loop so it can run again if user wants different data??
 print('Stock Data Visualizer\n--------------------')
 
-while(True):
-
-    #ask user for stock symbol
-    #need to check to make sure the symbol is valid
-    stockSymbol = None
+#ask the user for the stock symbol
+def get_stock_symbol():
     while(True):
-        stockSymbol = input('\nEnter the stock symbol you are looking for: ')
-        break
+        while(True):
+            stock_symbol = input('\nEnter the stock symbol you are looking for: ')
+            return stock_symbol
 
-
-    chartChoice = None
-    #Ask user for the chart type
+#Ask user for the chart type
+def get_chart_choice():
     while(True):
         print('\nChart types\n----------------')
         print('1. Bar')
         print('2. Line')
         try: 
-            chartChoice= int(input("\nEnter the chart type you want (1, 2): "))
-            if(chartChoice == 1 or chartChoice == 2):
-                break
+            chart_choice= int(input("\nEnter the chart type you want (1, 2): "))
+            if(chart_choice == 1 or chart_choice == 2):
+                return chart_choice
             else:
                 print("Enter a 1 or 2 for chart type")
         except ValueError:
             print("Enter a 1 or 2 for chart type")
-            
 
-    url = None
-    #Ask user for the time series function they want the api to use
+#Ask user for the time series function they want the api to use           
+def get_time_series():
     while(True):
         print('\nSelect the Time Series of the chart you want to generate\n----------------------------------------------------------')
         print('1. Intraday')
@@ -61,59 +56,95 @@ while(True):
         print('3. Weekly')
         print('4. Monthly')
         try: 
-            timeSeriesChoice = int(input('\nEnter time series option (1, 2, 3, 4): '))
-            if(timeSeriesChoice == 1):
-                url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={stockSymbol}&RANGE={startDate}&RANGE={endDate}&interval=5min&apikey=9XOMX3XJU9HQH6LD'
-                break
-            elif(timeSeriesChoice == 2):
-                url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={stockSymbol}&RANGE={startDate}&RANGE={endDate}&apikey=9XOMX3XJU9HQH6LD'
-                break
-            elif(timeSeriesChoice == 3):
-                url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol={stockSymbol}&RANGE={startDate}&RANGE={endDate}&apikey=9XOMX3XJU9HQH6LD'
-                break
-            elif(timeSeriesChoice == 4):
-                url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol={stockSymbol}&RANGE={startDate}&RANGE={endDate}&apikey=9XOMX3XJU9HQH6LD'
-                break
+            time_series_choice = int(input('\nEnter time series option (1, 2, 3, 4): '))
+            if(time_series_choice == 1 or time_series_choice == 2 or time_series_choice == 3 or time_series_choice == 4):
+                return time_series_choice
             else:
                 print("Enter a 1, 2, 3, or 4 for time series")
         except ValueError:
             print("Enter a 1, 2, 3, or 4 for time series")
 
 
-    #r = requests.get(url)
-    #testData = r.json()
-    #print(testData)
-
-    #Ask user for the start date
-    #make sure end date is after start date
-    #need to move part with links below this or ask for start/end date within the same while loop
-    startDate = None
+#Ask user for the start date
+#make sure end date is after start date
+def get_start_date():
+    start_date = None
     while(True):
-        startDate = input('\nEnter the start date (YYYY-MM-DD): ')
-        break
+        start_date = str(input('\nEnter the start date (YYYY-MM-DD): '))
+        return start_date
 
-
+#ask the user for the end date
+def get_end_date():
     #Ask user for the end date, make sure it is not before the start date(datetime??)
-    endDate = None
     while(True):
-        endDate = input('\nEnter the end date (YYYY-MM-DD): ')
-        break
+        end_date = input('\nEnter the end date (YYYY-MM-DD): ')
+        return end_date
+    
+#creates bar chart
+def bar_chart(start_date, end_date, data):
+    #bar chart - basic strucutre from pygal website
+    #bar_chart = pygal.Bar()
+    #bar_chart.title = f`Stock data for {stock_symbol}`
+    #bar_chart.x_labels = map(str, range(start_date[:4]), int(end_date[:4]))
+    #bar_chart.add('name', [data])
+    #bar_chart.render_in_browser() #should use lxml to render chart in broswer
+    return
 
-
-    #generate the graph
-
-    #line chart
+#creates line chart
+def line_chart(start_date, end_date, data):
+    #line chart - basic structure from pygal website
     #split the data from the website into lines (open, high, low, and close) and then add each to the chart 
-    #pygal basic line chart
     #line_chart = pygal.Line()
     #line_chart.title = f'Stock data for {stockSymbol}'
     #line_chart.x_labels = map(str, range(int(startDate[:4]), int(endDate[:4])))
     #line_chart.add('name', [data])
-    #line_chart.render()
+    #line_chart.render_in_browser() #should use lxml to render chart in broswer
+    return
 
-    #bar chart
+def main():
+    while(True):
+        stock_symbol = get_stock_symbol()
+        chart_choice = get_chart_choice()
+        time_series_choice = get_time_series()
+        start_date = get_start_date()
+        end_date = get_end_date()
 
-    #ask user if they want to look up more information
+        #sets the url based on the times series chosen by user
+        if(time_series_choice == 1):
+            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={stock_symbol}&interval=5min&apikey=9XOMX3XJU9HQH6LD'
+        elif(time_series_choice == 2):
+            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
+        elif(time_series_choice == 3):
+            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
+        elif(time_series_choice == 4):
+            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
+
+        #gets the data using the API key
+        r = requests.get(url)
+        data = r.json()
+        print(data)
+
+        #sends that data to the functions to build the chart (also included start/end dates but not sure if we need them)
+        if(chart_choice == 1):
+            bar_chart(start_date, end_date, data)
+        elif(chart_choice == 2):
+            line_chart(start_date, end_date, data)
+
+        makeAnother = input("Would you like to view mire stock data? Press 'y' to continue: ")
+        if(makeAnother == 'y'):
+            continue
+        else:
+            print("Thank you and Goodbye!")
+            break
 
 
 
+
+main()
+
+#What we still need to do:
+    #make sure user enters a valid stock symbol
+    #make sure end date is not before start date
+    #once we get the data from the API, use start and end date to limit dataset
+    #create chart using pygal 
+    #display chart using lmxl
