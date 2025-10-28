@@ -13,6 +13,7 @@
 #API key: 9XOMX3XJU9HQH6LD
 
 import requests
+import datetime
 #import pygal 
 #import lxml
 
@@ -70,15 +71,32 @@ def get_time_series():
 def get_start_date():
     start_date = None
     while(True):
-        start_date = str(input('\nEnter the start date (YYYY-MM-DD): '))
-        return start_date
+        user_start_date = str(input('\nEnter the start date (YYYY-MM-DD): '))
+        try:
+            #turns into datetime format
+            start_date = datetime.strptime(user_start_date, '%Y-%m-%d').date()
+            print(start_date)
+            return start_date
+        #gives error if not in correct format
+        except ValueError:
+            print("Invalid date format, use YYYY-MM-DD")
 
 #ask the user for the end date
-def get_end_date():
-    #Ask user for the end date, make sure it is not before the start date(datetime??)
+def get_end_date(start_date):
+    #Ask user for the end date, make sure it is not before the start date
     while(True):
-        end_date = input('\nEnter the end date (YYYY-MM-DD): ')
-        return end_date
+        user_end_date = input('\nEnter the end date (YYYY-MM-DD): ')
+        try:
+            #turns into datetime format
+            end_date = datetime.strptime(user_end_date, '%Y-%m-%d').date()
+            #makes sure end date is after start date and gives error if not
+            if end_date >= start_date:
+                return end_date
+            else:
+                print("End date must be after start date.")
+        #gives error if not in correct format
+        except ValueError:
+            print("Invalid date format, use YYYY-MM-DD")
     
 #creates bar chart
 def bar_chart(start_date, end_date, data):
@@ -101,13 +119,14 @@ def line_chart(start_date, end_date, data):
     #line_chart.render_in_browser() #should use lxml to render chart in broswer
     return
 
+#main function to contain while loop and functions to get information from user
 def main():
     while(True):
         stock_symbol = get_stock_symbol()
         chart_choice = get_chart_choice()
         time_series_choice = get_time_series()
         start_date = get_start_date()
-        end_date = get_end_date()
+        end_date = get_end_date(start_date)
 
         #sets the url based on the times series chosen by user
         if(time_series_choice == 1):
@@ -144,7 +163,9 @@ main()
 
 #What we still need to do:
     #make sure user enters a valid stock symbol
-    #make sure end date is not before start date
     #once we get the data from the API, use start and end date to limit dataset
     #create chart using pygal 
     #display chart using lmxl
+
+#references
+#https://pythonguides.com/convert-string-to-date-python/
