@@ -14,8 +14,8 @@
 
 import requests
 import datetime
-#import pygal 
-#import lxml
+import pygal 
+import lxml
 
 #Used to test to make sure API key worked
 #url = 'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=9XOMX3XJU9HQH6LD'
@@ -74,7 +74,7 @@ def get_start_date():
         user_start_date = str(input('\nEnter the start date (YYYY-MM-DD): '))
         try:
             #turns into datetime format
-            start_date = datetime.strptime(user_start_date, '%Y-%m-%d').date()
+            start_date = datetime.datetime.strptime(user_start_date, '%Y-%m-%d').date()
             print(start_date)
             return start_date
         #gives error if not in correct format
@@ -88,7 +88,7 @@ def get_end_date(start_date):
         user_end_date = input('\nEnter the end date (YYYY-MM-DD): ')
         try:
             #turns into datetime format
-            end_date = datetime.strptime(user_end_date, '%Y-%m-%d').date()
+            end_date = datetime.datetime.strptime(user_end_date, '%Y-%m-%d').date()
             #makes sure end date is after start date and gives error if not
             if end_date >= start_date:
                 return end_date
@@ -100,24 +100,63 @@ def get_end_date(start_date):
     
 #creates bar chart
 def bar_chart(start_date, end_date, data):
-    #bar chart - basic strucutre from pygal website
-    #bar_chart = pygal.Bar()
-    #bar_chart.title = f`Stock data for {stock_symbol}`
-    #bar_chart.x_labels = map(str, range(start_date[:4]), int(end_date[:4]))
-    #bar_chart.add('name', [data])
-    #bar_chart.render_in_browser() #should use lxml to render chart in broswer
-    return
+    #Checks API for data availablity from given values and grabs data from API
+    key = next((k for k in data.keys() if "Time Series" in k), None)
+    if not key:
+        print("No valid time series data found.")
+        return
+    #Assigns data to time_series 
+    time_series = data[key]
+    # Filter data between start_date and end_date
+    filtered_data = {}
+    for date_str, values in time_series.items():
+        try:
+            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+            if start_date <= date_obj <= end_date:
+                filtered_data[date_obj] = float(values['4. close'])
+        except:
+            continue
+    if not filtered_data:
+        print("No data in the selected range.")
+        return
+    # Sort by date
+    filtered_data = dict(sorted(filtered_data.items()))
+    # Create a bar chart
+    chart = pygal.Bar()
+    chart.title = "Stock Closing Prices"
+    chart.x_labels = [d.strftime('%Y-%m-%d') for d in filtered_data.keys()]
+    chart.add("Closing Values", list(filtered_data.values()))
+    chart.render_in_browser()
 
-#creates line chart
+#creates line chart (Same code just for line chart)
 def line_chart(start_date, end_date, data):
-    #line chart - basic structure from pygal website
-    #split the data from the website into lines (open, high, low, and close) and then add each to the chart 
-    #line_chart = pygal.Line()
-    #line_chart.title = f'Stock data for {stockSymbol}'
-    #line_chart.x_labels = map(str, range(int(startDate[:4]), int(endDate[:4])))
-    #line_chart.add('name', [data])
-    #line_chart.render_in_browser() #should use lxml to render chart in broswer
-    return
+    #Checks API for data availablity from given values and grabs data from API
+    key = next((k for k in data.keys() if "Time Series" in k), None)
+    if not key:
+        print("No valid time series data found.")
+        return
+    #Assigns data to time_series 
+    time_series = data[key]
+    # Filter data between start_date and end_date
+    filtered_data = {}
+    for date_str, values in time_series.items():
+        try:
+            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+            if start_date <= date_obj <= end_date:
+                filtered_data[date_obj] = float(values['4. close'])
+        except:
+            continue
+    if not filtered_data:
+        print("No data in the selected range.")
+        return
+    # Sort by date
+    filtered_data = dict(sorted(filtered_data.items()))
+    # Create a bar chart
+    chart = pygal.Line()
+    chart.title = "Stock Closing Prices"
+    chart.x_labels = [d.strftime('%Y-%m-%d') for d in filtered_data.keys()]
+    chart.add("Closing Values", list(filtered_data.values()))
+    chart.render_in_browser()
 
 #main function to contain while loop and functions to get information from user
 def main():
@@ -149,7 +188,7 @@ def main():
         elif(chart_choice == 2):
             line_chart(start_date, end_date, data)
 
-        makeAnother = input("Would you like to view mire stock data? Press 'y' to continue: ")
+        makeAnother = input("Would you like to view more stock data? Press 'y' to continue: ")
         if(makeAnother == 'y'):
             continue
         else:
@@ -162,10 +201,10 @@ def main():
 main()
 
 #What we still need to do:
-    #make sure user enters a valid stock symbol
-    #once we get the data from the API, use start and end date to limit dataset
-    #create chart using pygal 
-    #display chart using lmxl
+    #make sure user enters a valid stock symbol - should be done through chart creation checks
+    #once we get the data from the API, use start and end date to limit dataset - data is restricted between start and end date
+    #create chart using pygal - Chart is created 
+    #display chart using lmxl - Chart is brought up in default browser
 
 #references
 #https://pythonguides.com/convert-string-to-date-python/
