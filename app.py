@@ -1,5 +1,4 @@
-#This is the file to create our application
-
+#Stock data visualizer
 #requirements
 #--------------
     #Ask the user to enter the stock symbol for the company they want data for.
@@ -75,7 +74,6 @@ def get_start_date():
         try:
             #turns into datetime format
             start_date = datetime.datetime.strptime(user_start_date, '%Y-%m-%d').date()
-            print(start_date)
             return start_date
         #gives error if not in correct format
         except ValueError:
@@ -175,12 +173,12 @@ def main():
         elif(time_series_choice == 3):
             url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
         elif(time_series_choice == 4):
-            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
+            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
 
         #gets the data using the API key
         r = requests.get(url)
         data = r.json()
-        print(data)
+        #print(data)
 
         #sends that data to the functions to build the chart (also included start/end dates but not sure if we need them)
         if(chart_choice == 1):
@@ -199,12 +197,3 @@ def main():
 
 
 main()
-
-#What we still need to do:
-    #make sure user enters a valid stock symbol - should be done through chart creation checks
-    #once we get the data from the API, use start and end date to limit dataset - data is restricted between start and end date
-    #create chart using pygal - Chart is created 
-    #display chart using lmxl - Chart is brought up in default browser
-
-#references
-#https://pythonguides.com/convert-string-to-date-python/
