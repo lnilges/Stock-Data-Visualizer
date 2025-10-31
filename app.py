@@ -1,5 +1,4 @@
-#This is the file to create our application
-
+#Stock data visualizer
 #requirements
 #--------------
     #Ask the user to enter the stock symbol for the company they want data for.
@@ -52,7 +51,7 @@ def get_chart_choice():
 def get_time_series():
     while(True):
         print('\nSelect the Time Series of the chart you want to generate\n----------------------------------------------------------')
-        print('1. Intraday')
+        print('1. Intraday [If you select this option, please enter yesterdays date for start and end date]')
         print('2. Daily')
         print('3. Weekly')
         print('4. Monthly')
@@ -75,7 +74,6 @@ def get_start_date():
         try:
             #turns into datetime format
             start_date = datetime.datetime.strptime(user_start_date, '%Y-%m-%d').date()
-            print(start_date)
             return start_date
         #gives error if not in correct format
         except ValueError:
@@ -111,10 +109,19 @@ def bar_chart(start_date, end_date, data):
     filtered_data = {}
     for date_str, values in time_series.items():
         try:
-            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-            if start_date <= date_obj <= end_date:
+            # Detect whether intraday or not
+            if " " in date_str:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+                date_only = date_obj.date()
+            else:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                date_only = date_obj.date()
+
+            # Filter by date range (compare dates only)
+            if start_date <= date_only <= end_date:
                 filtered_data[date_obj] = float(values['4. close'])
-        except:
+
+        except Exception:
             continue
     if not filtered_data:
         print("No data in the selected range.")
@@ -141,10 +148,19 @@ def line_chart(start_date, end_date, data):
     filtered_data = {}
     for date_str, values in time_series.items():
         try:
-            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-            if start_date <= date_obj <= end_date:
+            # Detect whether intraday or not
+            if " " in date_str:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+                date_only = date_obj.date()
+            else:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                date_only = date_obj.date()
+
+            # Filter by date range (compare dates only)
+            if start_date <= date_only <= end_date:
                 filtered_data[date_obj] = float(values['4. close'])
-        except:
+
+        except Exception:
             continue
     if not filtered_data:
         print("No data in the selected range.")
@@ -175,12 +191,12 @@ def main():
         elif(time_series_choice == 3):
             url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
         elif(time_series_choice == 4):
-            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
+            url = f'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={stock_symbol}&apikey=9XOMX3XJU9HQH6LD'
 
         #gets the data using the API key
         r = requests.get(url)
         data = r.json()
-        print(data)
+        #print(data)
 
         #sends that data to the functions to build the chart (also included start/end dates but not sure if we need them)
         if(chart_choice == 1):
@@ -199,12 +215,3 @@ def main():
 
 
 main()
-
-#What we still need to do:
-    #make sure user enters a valid stock symbol - should be done through chart creation checks
-    #once we get the data from the API, use start and end date to limit dataset - data is restricted between start and end date
-    #create chart using pygal - Chart is created 
-    #display chart using lmxl - Chart is brought up in default browser
-
-#references
-#https://pythonguides.com/convert-string-to-date-python/
