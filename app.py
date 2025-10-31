@@ -51,7 +51,7 @@ def get_chart_choice():
 def get_time_series():
     while(True):
         print('\nSelect the Time Series of the chart you want to generate\n----------------------------------------------------------')
-        print('1. Intraday')
+        print('1. Intraday [If you select this option, please enter yesterdays date for start and end date]')
         print('2. Daily')
         print('3. Weekly')
         print('4. Monthly')
@@ -109,10 +109,19 @@ def bar_chart(start_date, end_date, data):
     filtered_data = {}
     for date_str, values in time_series.items():
         try:
-            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-            if start_date <= date_obj <= end_date:
+            # Detect whether intraday or not
+            if " " in date_str:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+                date_only = date_obj.date()
+            else:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                date_only = date_obj.date()
+
+            # Filter by date range (compare dates only)
+            if start_date <= date_only <= end_date:
                 filtered_data[date_obj] = float(values['4. close'])
-        except:
+
+        except Exception:
             continue
     if not filtered_data:
         print("No data in the selected range.")
@@ -139,10 +148,19 @@ def line_chart(start_date, end_date, data):
     filtered_data = {}
     for date_str, values in time_series.items():
         try:
-            date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-            if start_date <= date_obj <= end_date:
+            # Detect whether intraday or not
+            if " " in date_str:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+                date_only = date_obj.date()
+            else:
+                date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                date_only = date_obj.date()
+
+            # Filter by date range (compare dates only)
+            if start_date <= date_only <= end_date:
                 filtered_data[date_obj] = float(values['4. close'])
-        except:
+
+        except Exception:
             continue
     if not filtered_data:
         print("No data in the selected range.")
